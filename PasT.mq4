@@ -41,7 +41,7 @@ double NonLagMAAvgDel[];
 double NonLagMAAlpha[];
 
 double PI = 3.1415926535;
-int NonLagMAIndex, NonLagMAPhase, NonLagMALen, NonLagMACycle=4;
+int NonLagMAPhase, NonLagMALen, NonLagMACycle=4;
 double NonLagMACoeff, NonLagMABeta, NonLagMATVal, NonLagMASum, NonLagMAWeight, NonLagMAGVal;
 
 
@@ -100,4 +100,23 @@ void InitNonLagMA(){
    NonLagMALen = Length * 4 + NonLagMAPhase;
    ArrayResize(NonLagMAAlpha, NonLagMALen);
    NonLagMAWeight = 0;
+   
+   for (int i=0; i < NonLagMALen - 1; i++)
+   {
+      if (i <= NonLagMAPhase-1){
+         NonLagMATVal = 1.0 * i / (NonLagMAPhase-1);
+      }
+      else{
+         NonLagMATVal = 1.0 + (i - NonLagMAPhase+1) * (2.0 * NonLagMACycle - 1.0) / (NonLagMACycle * Length - 1.0);
+      }
+      
+      NonLagMABeta = MathCos(PI*NonLagMATVal);
+      NonLagMAGVal = 1.0 / (NonLagMACoeff * NonLagMATVal + 1);   
+      if (NonLagMATVal <= 0.5 ){
+         NonLagMAGVal = 1;
+      }
+      
+      NonLagMAAlpha[i] = NonLagMAGVal * NonLagMABeta;
+      NonLagMAWeight += NonLagMAAlpha[i];
+   }
 }

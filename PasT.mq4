@@ -93,3 +93,11 @@ void OnChartEvent(const int id,
    
   }
 //+------------------------------------------------------------------+
+
+void InitNonLagMA(){
+   NonLagMACoeff = 3 * PI;
+   NonLagMAPhase = Length - 1;
+   NonLagMALen = Length * 4 + NonLagMAPhase;
+   ArrayResize(NonLagMAAlpha, NonLagMALen);
+   NonLagMAWeight = 0;
+}

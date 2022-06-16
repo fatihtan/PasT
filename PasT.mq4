@@ -38,6 +38,12 @@ double NonLagMADownBuffer[];
 double NonLagMATrend[];
 double NonLagMADel[];
 double NonLagMAAvgDel[];
+double NonLagMAAlpha[];
+
+double PI = 3.1415926535;
+int NonLagMAIndex, NonLagMAPhase, NonLagMALen, NonLagMACycle=4;
+double NonLagMACoeff, NonLagMABeta, NonLagMATVal, NonLagMASum, NonLagMAWeight, NonLagMAGVal;
+
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |

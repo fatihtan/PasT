@@ -79,10 +79,14 @@ void nonLagMAControl()
 {
    double nlmaVal_0 = getNonLagMAValue(0);
    double nlmaVal_1 = getNonLagMAValue(1);
+   double nlmaVal_2 = getNonLagMAValue(2);
    
-   if(non_lag_ma == 0){
+   if(nlmaVal_0 == 0 || nlmaVal_1 == 0){
       return;
    }
+   
+   // Check Buy
+   if(Close[1] < nlmaVal_1)
    
    Print("NonLagMA: ", non_lag_ma, "High: ", High[ix]);
    int order_type;

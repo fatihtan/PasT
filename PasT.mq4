@@ -11,6 +11,7 @@ int NonLagMAPeriod = 180;
 int ADXPeriod = 14;
 int ADXMainCrossLevel = 20;
 int ADXDIPlusCrossLevel = 20;
+int ADXDIMinusCrossLevel = 20;
 
 int orderType = -1;
 bool isFirstOrderExecuted = false;
@@ -112,6 +113,18 @@ int ADXDIPlusControl(){
    
    // Tolerance difference may be calculated in the future.
    if(adxDIPlusVal_0 > adxDIPlusVal_1 && adxDIPlusVal_0 > ADXDIPlusCrossLevel){
+      return true;
+   }
+   
+   return false;
+}
+
+int ADXDIMinusControl(){
+   double adxDIMinusVal_0 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MINUSDI, 0);
+   double adxDIMinusVal_1 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MINUSDI, 1);
+   
+   // Tolerance difference may be calculated in the future.
+   if(adxDIMinusVal_0 > adxDIMinusVal_1 && adxDIMinusVal_0 > ADXDIMinusCrossLevel){
       return true;
    }
    

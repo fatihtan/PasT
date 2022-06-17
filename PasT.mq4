@@ -53,6 +53,8 @@ int OnInit()
 //--- create timer
    EventSetTimer(60);
    
+   InitNonLagMA();
+   
 //---
    return(INIT_SUCCEEDED);
   }

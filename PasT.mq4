@@ -9,7 +9,8 @@
 int RequiredClosingBarsAfterCross = 1;
 int NonLagMAPeriod = 180;
 int ADXPeriod = 14;
-int ADXCrossLevel = 20;
+int ADXMainCrossLevel = 20;
+int ADXDIPlusCrossLevel = 20;
 
 int orderType = -1;
 bool isFirstOrderExecuted = false;
@@ -98,7 +99,19 @@ bool ADXMainAngleControl(){
    double adxVal_1 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MAIN, 1);
    
    // Tolerance difference may be calculated in the future.
-   if(adxVal_0 > adxVal_1 && adxVal_0 > ADXCrossLevel){
+   if(adxVal_0 > adxVal_1 && adxVal_0 > ADXMainCrossLevel){
+      return true;
+   }
+   
+   return false;
+}
+
+int ADXDIPlusControl(){
+   double adxDIPlusVal_0 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_PLUSDI, 0);
+   double adxDIPlusVal_1 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_PLUSDI, 1);
+   
+   // Tolerance difference may be calculated in the future.
+   if(adxDIPlusVal_0 > adxDIPlusVal_1 && adxDIPlusVal_0 > ADXDIPlusCrossLevel){
       return true;
    }
    

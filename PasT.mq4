@@ -86,14 +86,14 @@ void OnChartEvent(const int id,
 //+------------------------------------------------------------------+
 
 bool controlSignal(){
-   bool control_NonLagMA = nonLagMAControl();
+   bool control_NonLagMA = NonLagMAControl();
    
    
    return false;
 }
 
 // ADX
-bool controlADX(){
+bool ADXMainAngleControl(){
    double adxVal_0 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MAIN, 0);
    double adxVal_1 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MAIN, 1);
    
@@ -106,23 +106,23 @@ bool controlADX(){
 }
 
 // NonLagMA
-int nonLagMAControl()
+int NonLagMAControl()
 {
-   double nlmaVal_0 = getNonLagMAValue(0);
-   double nlmaVal_1 = getNonLagMAValue(1);
-   double nlmaVal_2 = getNonLagMAValue(2);
+   double nlmaVal_0 = GetNonLagMAValue(0);
+   double nlmaVal_1 = GetNonLagMAValue(1);
+   double nlmaVal_2 = GetNonLagMAValue(2);
    
    if(nlmaVal_0 == 0 || nlmaVal_1 == 0){
       return -1;
    }
    
    // Buy Check
-   if(nonLagMABuyControl(nlmaVal_0, nlmaVal_1, nlmaVal_2)){
+   if(NonLagMABuyControl(nlmaVal_0, nlmaVal_1, nlmaVal_2)){
       return OP_BUY;
    }
    
    // Sell Check
-   else if(nonLagMASellControl(nlmaVal_0, nlmaVal_1, nlmaVal_2)){
+   else if(NonLagMASellControl(nlmaVal_0, nlmaVal_1, nlmaVal_2)){
       return OP_SELL;
    }
    
@@ -130,14 +130,14 @@ int nonLagMAControl()
    return -1;
 }
 
-double getNonLagMAValue(int barIndex){
+double GetNonLagMAValue(int barIndex){
    return iCustom(Symbol(), 0, "NonLagMA", 0, NonLagMAPeriod, barIndex, 0, 1, 2, 0, 0);
 }
 
-bool nonLagMABuyControl(double val0, double val1, double val2){
+bool NonLagMABuyControl(double val0, double val1, double val2){
    return Open[1] < val1 && Close[1] > val1 && Open[0] > val0;
 }
 
-bool nonLagMASellControl(double val0, double val1, double val2){
+bool NonLagMASellControl(double val0, double val1, double val2){
    return Open[1] > val1 && Close[1] < val1 && Open[0] < val0;
 }

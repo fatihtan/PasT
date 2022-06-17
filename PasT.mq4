@@ -73,7 +73,7 @@ void OnDeinit(const int reason)
 void OnTick()
   {
 //---
-   
+   OnTickNonLagMA();
   }
 //+------------------------------------------------------------------+
 //| Timer function                                                   |
@@ -120,5 +120,33 @@ void InitNonLagMA(){
       
       NonLagMAAlpha[i] = NonLagMAGVal * NonLagMABeta;
       NonLagMAWeight += NonLagMAAlpha[i];
+   }
+}
+
+void OnTickNonLagMA(){
+   int i, shift, limit;
+   int counted_bars = IndicatorCounted();
+   double price;
+   
+   if (counted_bars > 0)
+      limit = Bars - counted_bars;
+   if (counted_bars < 0)
+      return;
+   if (counted_bars ==0)
+      limit=Bars-NonLagMALen-1;
+      
+   if (counted_bars < 1) 
+   {
+      for(i=1; i < Length * NonLagMACycle + Length; i++) 
+      {
+         NonLagMABuffer[Bars-i] = 0;
+         NonLagMAUpBuffer[Bars-i] = 0;
+         NonLagMADownBuffer[Bars-i] = 0;
+      }
+   }
+   
+   for(shift = limit; shift >= 0; i--)
+   {
+      NonLagMASum = 0;
    }
 }

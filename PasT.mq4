@@ -85,8 +85,15 @@ void nonLagMAControl()
       return;
    }
    
-   // Check Buy
-   if(Close[1] < nlmaVal_1)
+   // Buy Check
+   if(Open[1] < nlmaVal_1 && Close[i] > nlmaVal_1 && Open[0] > nlmaVal_0){
+   
+   }
+   
+   // Sell Check
+   else if(Open[1] > nlmaVal_1 && Close[1] < nlmaVal_1 && Open[0] < nlmaVal_0){
+   
+   }
    
    Print("NonLagMA: ", non_lag_ma, "High: ", High[ix]);
    int order_type;

@@ -6,16 +6,16 @@
 #property strict
 
 
+double LotSize = 0.1;
+double TakeProfit1 = 0.2;
+double StopLossCoeff = 0.6;
+
 int RequiredClosingBarsAfterCross = 1;
 int NonLagMAPeriod = 180;
 int ADXPeriod = 14;
 int ADXMainCrossLevel = 20;
 int ADXDIPlusCrossLevel = 20;
 int ADXDIMinusCrossLevel = 20;
-
-int orderType = -1;
-bool isFirstOrderExecuted = false;
-
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -58,7 +58,10 @@ void OnTick()
       
       if(OrdersTotal() == 0)
       {
-         //controlSignal();
+         int orderType = controlSignal();
+         if(orderType != -1){
+            
+         }
       }
       else
       {
@@ -87,11 +90,28 @@ void OnChartEvent(const int id,
   }
 //+------------------------------------------------------------------+
 
-bool controlSignal(){
-   bool control_NonLagMA = NonLagMAControl();
+void openOrder(int orderType){
+   if(orderType == OP_BUY){
+      OrderSend(Symbol(), OP_BUY, LotSize, Ask, 3, Bid-(Point*10), 0, NULL, 0, 0, clrGreen);
+   }
+   else if(orderType == OP_SELL){
    
+   }
+}
+
+int controlSignal(){
+   int control_NonLagMA = NonLagMAControl();
+   bool control_ADX = ADXControl();
    
-   return false;
+   if(control_NonLagMA != -1 && control_ADX){
+      return control_NonLagMA;
+   }
+   
+   return -1;
+}
+
+bool ADXControl(){
+   return ADXMainAngleControl();
 }
 
 // ADX

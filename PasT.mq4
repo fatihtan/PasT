@@ -11,7 +11,9 @@ double TakeProfit1 = 0.2;
 double StopLossCoeff = 0.6;
 
 int RequiredClosingBarsAfterCross = 1;
-int NonLagMAPeriod = 180;
+int NonLagMAPeriodSMALL = 90;
+int NonLagMAPeriodMEDIUM = 180;
+int NonLagMAPeriodLARGE = 270;
 int ADXPeriod = 14;
 int ADXMainCrossLevel = 20;
 int ADXDIPlusCrossLevel = 20;
@@ -154,9 +156,9 @@ int ADXDIMinusControl(){
 // NonLagMA
 int NonLagMAControl()
 {
-   double nlmaVal_0 = GetNonLagMAValue(0);
-   double nlmaVal_1 = GetNonLagMAValue(1);
-   double nlmaVal_2 = GetNonLagMAValue(2);
+   double nlmaVal_0 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 0);
+   double nlmaVal_1 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 1);
+   double nlmaVal_2 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 2);
    
    if(nlmaVal_0 == 0 || nlmaVal_1 == 0){
       return -1;
@@ -176,8 +178,8 @@ int NonLagMAControl()
    return -1;
 }
 
-double GetNonLagMAValue(int barIndex){
-   return iCustom(Symbol(), 0, "NonLagMA", 0, NonLagMAPeriod, barIndex, 0, 1, 2, 0, 0);
+double GetNonLagMAValue(int period, int barIndex){
+   return iCustom(Symbol(), 0, "NonLagMA", 0, period, barIndex, 0, 1, 2, 0, 0);
 }
 
 bool NonLagMABuyControl(double val0, double val1, double val2){

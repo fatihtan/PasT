@@ -148,5 +148,41 @@ void OnTickNonLagMA(){
    for(shift = limit; shift >= 0; i--)
    {
       NonLagMASum = 0;
+      for(i = 0; i <= NonLagMALen - 1; i++){
+         price = iMA(NULL, 0, 1, 0, 3, Price, i + shift);
+         NonLagMASum += NonLagMAAlpha[i] * price;
+      }
+      
+      if(NonLagMAWeight > 0)
+      {
+         NonLagMABuffer[shift] = (1.0 + Deviation / 100) * NonLagMASum / NonLagMAWeight;
+      }
+      
+      if(PctFilter > 0){
+         NonLagMADel[shift] = MathAbs(NonLagMABuffer[shift] - NonLagMABuffer[shift + 1]);
+         double sumdel = 0;
+         for(i = 0; i <= Length - 1; i++){
+            sumdel = sumdel + NonLagMADel[shift + i];
+         }
+         
+         NonLagMAAvgDel[shift] = sumdel / Length;
+         
+         double sumpow = 0;
+         for (i = 0; i < Length - 1; i++){
+            sumpow += MathPow(NonLagMADel[shift + i] - NonLagMAAvgDel[shift + i], 2);
+         }
+         double StdDev = MathSqrt(sumpow / Length);
+         double Filter = PctFilter * StdDev;
+         
+         if(MathAbs(NonLagMABuffer[shift] - NonLagMABuffer[shift + 1]) < Filter){
+            NonLagMABuffer[shift] = NonLagMABuffer[shift + 1];
+         }
+      }
+      else {
+         Filter = 0;
+         if(Color > 0){
+            
+         }
+      }
    }
 }

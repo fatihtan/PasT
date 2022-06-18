@@ -7,8 +7,8 @@
 
 
 double LotSize = 0.1;
-double TakeProfit1 = 0.2;
-double StopLossCoeff = 0.6;
+double TakeProfit1 = 0.6;
+double StopLossCoeff = 1.6;
 
 int RequiredClosingBarsAfterCross = 1;
 int NonLagMAPeriodSMALL = 90;
@@ -62,7 +62,7 @@ void OnTick()
       {
          int orderType = controlSignal();
          if(orderType != -1){
-            
+            openOrder(orderType);
          }
       }
       else

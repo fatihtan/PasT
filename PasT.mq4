@@ -94,11 +94,15 @@ void OnChartEvent(const int id,
 
 void openOrder(int orderType){
    if(orderType == OP_BUY){
-      OrderSend(Symbol(), OP_BUY, LotSize, Ask, 3, Bid-(Point*10), 0, NULL, 0, 0, clrGreen);
+      OrderSend(Symbol(), OP_BUY, LotSize, Ask, 3, calculatePricePoint(Bid, StopLossCoeff * -1), calculatePricePoint(Bid, TakeProfit1), NULL, 0, 0, clrGreen);
    }
    else if(orderType == OP_SELL){
-   
+      OrderSend(Symbol(), OP_SELL, LotSize, Ask, 3, calculatePricePoint(Bid, StopLossCoeff * -1), calculatePricePoint(Bid, TakeProfit1), NULL, 0, 0, clrGreen);
    }
+}
+
+double calculatePricePoint(double price, double coeff){
+   return ((price * coeff) / 100) + price;
 }
 
 int controlSignal(){

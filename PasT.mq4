@@ -19,6 +19,8 @@ int ADXMainCrossLevel = 20;
 int ADXDIPlusCrossLevel = 20;
 int ADXDIMinusCrossLevel = 20;
 
+
+
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+

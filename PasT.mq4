@@ -199,9 +199,9 @@ double GetNonLagMAValue(int period, int barIndex){
 }
 
 bool NonLagMABuyControl(double val0, double val1, double val2){
-   return Open[1] < val1 && Close[1] > val1 && Open[0] > val0;
+   return (Open[1] < val1 && Close[1] > val1 && Open[0] > val0) || (Open[1] < val1 && Close[1] < val1 && Open[0] > val0);
 }
 
 bool NonLagMASellControl(double val0, double val1, double val2){
-   return Open[1] > val1 && Close[1] < val1 && Open[0] < val0;
+   return (Open[1] > val1 && Close[1] < val1 && Open[0] < val0) || (Open[1] > val1 && Close[1] > val1 && Open[0] < val0);
 }

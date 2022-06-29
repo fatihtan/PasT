@@ -6,9 +6,9 @@
 #property strict
 
 
-double LotSize = 0.1;
-double TakeProfit1 = 0.6;
-double StopLossCoeff = 1.6;
+extern double LotSize = 0.1;
+extern double TakeProfit1 = 0.6;
+extern double StopLossCoeff = 1.6;
 
 int RequiredClosingBarsAfterCross = 1;
 int NonLagMAPeriodSMALL = 90;
@@ -185,7 +185,17 @@ int NonLagMAControl()
 }
 
 double GetNonLagMAValue(int period, int barIndex){
-   return iCustom(Symbol(), 0, "NonLagMA", 0, period, barIndex, 0, 1, 2, 0, 0);
+   return iCustom(Symbol(), 0, "NonLagMA", 
+      0,          // Price
+      period,     // Period
+      0,          // Displace
+      0,          // PctFilter
+      0,          // Color
+      2,          // ColorBarBack
+      0,          // Deviation
+      0,          // Buffer
+      barIndex    // BarIndex & Shifting
+      );
 }
 
 bool NonLagMABuyControl(double val0, double val1, double val2){

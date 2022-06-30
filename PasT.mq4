@@ -63,12 +63,15 @@ void OnTick()
       if(OrdersTotal() == 0)
       {
          int orderType = controlSignal();
+         Print("OrderType: " + orderType);
+         
          if(orderType != -1){
             openOrder(orderType);
          }
       }
       else
       {
+         traceOrder();
          //closeOrder();
       }
    }
@@ -94,12 +97,33 @@ void OnChartEvent(const int id,
   }
 //+------------------------------------------------------------------+
 
+void traceOrder(){
+   OrderSelect(0, SELECT_BY_POS, MODE_TRADES);
+   if(OP_BUY == OrderType()) // Tracing Buy Order
+   {
+      double trailingStopLevel = calculatePricePoint(Bid, TrailingStopCoeff);
+      if(Bid > trailingStopLevel)
+      {
+         OrderModify(OrderTicket(), 0, trailingStopLevel, 0, 0, clrRed);
+      }
+   }
+}
+
 void openOrder(int orderType){
+   RefreshRates();
    if(orderType == OP_BUY){
-      OrderSend(Symbol(), OP_BUY, LotSize, Ask, 3, calculatePricePoint(Bid, StopLossCoeff * -1), calculatePricePoint(Bid, TakeProfit1), NULL, 0, 0, clrGreen);
+      Print("Ask: " + Ask);
+      Print("StopLoss: " + calculatePricePoint(Bid, StopLossCoeff * -1));
+      Print("TakeProfit: " + calculatePricePoint(Bid, TakeProfit1));
+      
+      OrderSend(Symbol(), OP_BUY, LotSize, Ask, 100, calculatePricePoint(Bid, StopLossCoeff * -1), calculatePricePoint(Bid, TakeProfit1), NULL, 0, 0, clrGreen);
    }
    else if(orderType == OP_SELL){
-      OrderSend(Symbol(), OP_SELL, LotSize, Ask, 3, calculatePricePoint(Bid, StopLossCoeff * -1), calculatePricePoint(Bid, TakeProfit1), NULL, 0, 0, clrGreen);
+      Print("Ask: " + Ask);
+      Print("StopLoss: " + calculatePricePoint(Bid, StopLossCoeff));
+      Print("TakeProfit: " + calculatePricePoint(Bid, TakeProfit1 * -1));
+      
+      OrderSend(Symbol(), OP_SELL, LotSize, Ask, 100, calculatePricePoint(Bid, StopLossCoeff), calculatePricePoint(Bid, TakeProfit1 * -1), NULL, 0, 0, clrGreen);
    }
 }
 
@@ -109,7 +133,7 @@ double calculatePricePoint(double price, double coeff){
 
 int controlSignal(){
    int control_NonLagMA = NonLagMAControl();
-   bool control_ADX = ADXControl();
+   bool control_ADX = true || ADXControl();
    
    if(control_NonLagMA != -1 && control_ADX){
       return control_NonLagMA;
@@ -164,19 +188,19 @@ int NonLagMAControl()
 {
    double nlmaVal_0 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 0);
    double nlmaVal_1 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 1);
-   double nlmaVal_2 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 2);
+   //double nlmaVal_2 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 2);
    
    if(nlmaVal_0 == 0 || nlmaVal_1 == 0){
       return -1;
    }
    
    // Buy Check
-   if(NonLagMABuyControl(nlmaVal_0, nlmaVal_1, nlmaVal_2)){
+   if(NonLagMABuyControl(nlmaVal_0, nlmaVal_1, 0)){
       return OP_BUY;
    }
    
    // Sell Check
-   else if(NonLagMASellControl(nlmaVal_0, nlmaVal_1, nlmaVal_2)){
+   else if(NonLagMASellControl(nlmaVal_0, nlmaVal_1, 0)){
       return OP_SELL;
    }
    
@@ -199,9 +223,13 @@ double GetNonLagMAValue(int period, int barIndex){
 }
 
 bool NonLagMABuyControl(double val0, double val1, double val2){
+   Print("Time: " + Time[0] + "NonLagMABuyControl: val0=" + val0 + "; val1=" + val1 + "; val2=" + val2);
+   Print("Time: " + Time[0] + "OHLC: Open0=" + Open[0] + "; Open1=" + Open[1] + "; Close1=" + Close[1]);
    return (Open[1] < val1 && Close[1] > val1 && Open[0] > val0) || (Open[1] < val1 && Close[1] < val1 && Open[0] > val0);
 }
 
 bool NonLagMASellControl(double val0, double val1, double val2){
+   Print("Time: " + Time[0] + "NonLagMASellControl: val0=" + val0 + "; val1=" + val1 + "; val2=" + val2);
+   Print("Time: " + Time[0] + "OHLC: Open0=" + Open[0] + "; Open1=" + Open[1] + "; Close1=" + Close[1]);
    return (Open[1] > val1 && Close[1] < val1 && Open[0] < val0) || (Open[1] > val1 && Close[1] > val1 && Open[0] < val0);
 }

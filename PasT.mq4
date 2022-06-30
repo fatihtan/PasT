@@ -9,6 +9,7 @@
 extern double LotSize = 0.1;
 extern double TakeProfit1 = 0.6;
 extern double StopLossCoeff = 1.6;
+extern double TrailingStopCoeff = 0.6;
 
 int RequiredClosingBarsAfterCross = 1;
 int NonLagMAPeriodSMALL = 90;
@@ -46,7 +47,6 @@ void OnDeinit(const int reason)
   {
 //--- destroy timer
    EventKillTimer();
-   
   }
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |

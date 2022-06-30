@@ -9,7 +9,8 @@
 extern double LotSize = 0.1;
 extern double TakeProfit1 = 0.6;
 extern double StopLossCoeff = 1.6;
-extern double TrailingStopCoeff = 0.6;
+extern double TrailingStopTrigger = 0.3;
+extern double TrailingStopCoeff = 0.1;
 
 int RequiredClosingBarsAfterCross = 1;
 int NonLagMAPeriodSMALL = 90;
@@ -99,12 +100,25 @@ void OnChartEvent(const int id,
 
 void traceOrder(){
    OrderSelect(0, SELECT_BY_POS, MODE_TRADES);
-   if(OP_BUY == OrderType()) // Tracing Buy Order
+   if(OrderType() == OP_BUY) // Tracing Buy Order
    {
-      double trailingStopLevel = calculatePricePoint(Bid, TrailingStopCoeff);
-      if(Bid > trailingStopLevel)
+      double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger);
+      if(Bid > trailingStopTriggerLevel)
       {
-         OrderModify(OrderTicket(), 0, trailingStopLevel, 0, 0, clrRed);
+         Print("OPEN:trailingStopLevel: " + trailingStopLevel);
+         Print("OPEN:OrderOpenPrice(): " + OrderOpenPrice());
+         OrderModify(OrderTicket(), OrderOpenPrice(), trailingStopLevel, OrderTakeProfit(), 0, clrRed);
+      }
+   }
+   else if(OrderType() == OP_SELL)
+   {
+      double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger * -1);
+      if(Ask < trailingStopTriggerLevel)
+      {
+         double trailingStopLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopCoeff * -1);
+         Print("SELL:trailingStopLevel: " + trailingStopLevel);
+         Print("SELL:OrderOpenPrice(): " + OrderOpenPrice());
+         OrderModify(OrderTicket(), OrderOpenPrice(), trailingStopLevel, OrderTakeProfit(), 0, clrRed);
       }
    }
 }
@@ -116,14 +130,15 @@ void openOrder(int orderType){
       Print("StopLoss: " + calculatePricePoint(Bid, StopLossCoeff * -1));
       Print("TakeProfit: " + calculatePricePoint(Bid, TakeProfit1));
       
-      OrderSend(Symbol(), OP_BUY, LotSize, Ask, 100, calculatePricePoint(Bid, StopLossCoeff * -1), calculatePricePoint(Bid, TakeProfit1), NULL, 0, 0, clrGreen);
+      OrderSend(Symbol(), OP_BUY, LotSize, Ask, 100, Open[1], calculatePricePoint(Bid, TakeProfit1), NULL, 0, 0, clrGreen);
    }
    else if(orderType == OP_SELL){
       Print("Ask: " + Ask);
       Print("StopLoss: " + calculatePricePoint(Bid, StopLossCoeff));
       Print("TakeProfit: " + calculatePricePoint(Bid, TakeProfit1 * -1));
       
-      OrderSend(Symbol(), OP_SELL, LotSize, Ask, 100, calculatePricePoint(Bid, StopLossCoeff), calculatePricePoint(Bid, TakeProfit1 * -1), NULL, 0, 0, clrGreen);
+      
+      OrderSend(Symbol(), OP_SELL, LotSize, Ask, 100, Open[1], calculatePricePoint(Bid, TakeProfit1 * -1), NULL, 0, 0, clrGreen);
    }
 }
 

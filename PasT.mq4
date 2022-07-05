@@ -26,7 +26,7 @@ int ADXDIMinusCrossLevel = 20;
 
 int MinPrice = 2137000000;
 int MaxPrice = -2137000000;
-bool TrailingStopTriggered = false;
+bool TriggerTrailingStop = false;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -135,7 +135,7 @@ void traceOrder(){
       if(Bid > MaxPrice){
          MaxPrice = Bid;
          
-         if(!TrailingStopTriggered){
+         if(!TriggerTrailingStop){
             double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger);
             if(MaxPrice >= trailingStopTriggerLevel)
             {
@@ -146,7 +146,7 @@ void traceOrder(){
                //Print("SELL:trailingStopLevel: " + trailingStopLevel);
                //Print("SELL:OrderOpenPrice(): " + OrderOpenPrice());
                OrderModify(OrderTicket(), OrderOpenPrice(), trailingStopLevel, OrderTakeProfit(), 0, clrRed);
-               TrailingStopTriggered = true;
+               TriggerTrailingStop = true;
             }
          }
       }
@@ -157,7 +157,7 @@ void traceOrder(){
       if(Ask < MinPrice){
          MinPrice = Ask;
          
-         if(!TrailingStopTriggered){
+         if(!TriggerTrailingStop){
             double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger * -1);
             if(MinPrice <= trailingStopTriggerLevel)
             {
@@ -168,7 +168,7 @@ void traceOrder(){
                //Print("SELL:trailingStopLevel: " + trailingStopLevel);
                //Print("SELL:OrderOpenPrice(): " + OrderOpenPrice());
                OrderModify(OrderTicket(), OrderOpenPrice(), trailingStopLevel, OrderTakeProfit(), 0, clrRed);
-               TrailingStopTriggered = true;
+               TriggerTrailingStop = true;
             }
          }
       }
@@ -299,5 +299,5 @@ bool NonLagMASellControl(double val0, double val1, double val2){
 
 void resetValues(){
    MinPrice = 2137000000;
-   TrailingStopTriggered = false;
+   TriggerTrailingStop = false;
 }

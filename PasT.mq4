@@ -299,5 +299,6 @@ bool NonLagMASellControl(double val0, double val1, double val2){
 
 void resetValues(){
    MinPrice = 2137000000;
+   MaxPrice = -2137000000
    TriggerTrailingStop = false;
 }

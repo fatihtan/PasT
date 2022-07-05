@@ -6,6 +6,7 @@
 #property strict
 
 
+extern int NonLagMAPeriodMEDIUM = 180;
 extern double LotSize = 0.1;
 
 extern bool EnableTakeProfit = true;
@@ -14,9 +15,9 @@ extern double StopLossCoeff = 1.6;
 extern double TrailingStopTrigger = 1;
 extern double TrailingStopPips = 100;
 
+
 int RequiredClosingBarsAfterCross = 1;
 int NonLagMAPeriodSMALL = 90;
-int NonLagMAPeriodMEDIUM = 180;
 int NonLagMAPeriodLARGE = 270;
 int ADXPeriod = 14;
 int ADXMainCrossLevel = 20;
@@ -24,6 +25,8 @@ int ADXDIPlusCrossLevel = 20;
 int ADXDIMinusCrossLevel = 20;
 
 int MinPrice = 2137000000;
+int MaxPrice = -2137000000;
+bool TrailingStopTriggered = false;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -33,13 +36,6 @@ int OnInit()
 //--- create timer
    EventSetTimer(60);
    
-   Print("OrderType: " + OrderType());
-   Print("OP_BUY " + OP_BUY );
-   Print("OP_SELL " + OP_SELL );
-   Print("OP_BUYLIMIT " + OP_BUYLIMIT );
-   Print("OP_BUYSTOP " + OP_BUYSTOP );
-   Print("OP_SELLLIMIT " + OP_SELLLIMIT );
-   Print("OP_SELLSTOP " + OP_SELLSTOP );
 //---
    return(INIT_SUCCEEDED);
   }
@@ -66,7 +62,6 @@ void OnTick()
       if(OrdersTotal() == 0)
       {
          int orderType = controlSignal();
-         Print("OrderType: " + orderType);
          
          if(orderType != -1){
             openOrder(orderType);
@@ -75,7 +70,15 @@ void OnTick()
       }
       else
       {
-         
+         if(orderCrossCheck()){
+            int orderType = controlSignal();
+            Print("OrderType: " + orderType);
+            
+            if(orderType != -1){
+               openOrder(orderType);
+               resetValues();
+            }
+         }
       }
    }
    
@@ -102,56 +105,92 @@ void OnChartEvent(const int id,
    
   }
 //+------------------------------------------------------------------+
-
-void traceOrder(){
-   OrderSelect(0, SELECT_BY_POS, MODE_TRADES);
-   if(false && OrderType() == OP_BUY) // Tracing Buy Order
-   {
-      double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger);
-      if(Bid > trailingStopTriggerLevel)
-      {
-         Print("OPEN:trailingStopLevel: " + trailingStopTriggerLevel);
-         Print("OPEN:OrderOpenPrice(): " + OrderOpenPrice());
-         //OrderModify(OrderTicket(), OrderOpenPrice(), trailingStopLevel, OrderTakeProfit(), 0, clrRed);
+bool orderCrossCheck(){
+   bool isOrderClosed = false;
+   if(OrderType() == OP_BUY){
+      double nlmaVal_0 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 0);
+      double nlmaVal_1 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 1);
+      bool readyToOut = NonLagMASellControl(nlmaVal_0, nlmaVal_1, 0);
+      if(readyToOut){
+         isOrderClosed = OrderClose(OrderTicket(), OrderLots(), Bid, 100, clrRed);
       }
    }
    else if(OrderType() == OP_SELL)
    {
-      Print("Ask: " + Ask + "; MinPrice: " + MinPrice);
+      double nlmaVal_0 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 0);
+      double nlmaVal_1 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 1);
+      bool readyToOut = NonLagMABuyControl(nlmaVal_0, nlmaVal_1, 0);
+      if(readyToOut){
+         isOrderClosed = OrderClose(OrderTicket(), OrderLots(), Ask, 100, clrRed);
+      }
+   }
+   
+   return isOrderClosed;
+}
+
+void traceOrder(){
+   OrderSelect(0, SELECT_BY_POS, MODE_TRADES);
+   if(OrderType() == OP_BUY) // Tracing Buy Order
+   {
+      if(Bid > MaxPrice){
+         MaxPrice = Bid;
+         
+         if(!TrailingStopTriggered){
+            double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger);
+            if(MaxPrice >= trailingStopTriggerLevel)
+            {
+               double trailingStopLevel = OrderOpenPrice() + (TrailingStopPips * Point * 100);
+               
+               //Print("SELL:(TrailingStopPips * Point * 10): " + (TrailingStopPips * Point * 010));
+               //Print("SELL:Point: " + Point);
+               //Print("SELL:trailingStopLevel: " + trailingStopLevel);
+               //Print("SELL:OrderOpenPrice(): " + OrderOpenPrice());
+               OrderModify(OrderTicket(), OrderOpenPrice(), trailingStopLevel, OrderTakeProfit(), 0, clrRed);
+               TrailingStopTriggered = true;
+            }
+         }
+      }
+   }
+   else if(OrderType() == OP_SELL)
+   {
+      //Print("Ask: " + Ask + "; MinPrice: " + MinPrice);
       if(Ask < MinPrice){
          MinPrice = Ask;
-      }
-      else {
-         return;
-      }
-      
-      double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger * -1);
-      
-      if(MinPrice <= trailingStopTriggerLevel)
-      {
-         double trailingStopLevel = Ask + (TrailingStopPips * Point * 100);
          
-         //Print("SELL:(TrailingStopPips * Point * 10): " + (TrailingStopPips * Point * 010));
-         //Print("SELL:Point: " + Point);
-         //Print("SELL:trailingStopLevel: " + trailingStopLevel);
-         //Print("SELL:OrderOpenPrice(): " + OrderOpenPrice());
-         OrderModify(OrderTicket(), OrderOpenPrice(), trailingStopLevel, OrderTakeProfit(), 0, clrRed);
+         if(!TrailingStopTriggered){
+            double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger * -1);
+            if(MinPrice <= trailingStopTriggerLevel)
+            {
+               double trailingStopLevel = OrderOpenPrice() - (TrailingStopPips * Point * 100);
+               
+               //Print("SELL:(TrailingStopPips * Point * 10): " + (TrailingStopPips * Point * 010));
+               //Print("SELL:Point: " + Point);
+               //Print("SELL:trailingStopLevel: " + trailingStopLevel);
+               //Print("SELL:OrderOpenPrice(): " + OrderOpenPrice());
+               OrderModify(OrderTicket(), OrderOpenPrice(), trailingStopLevel, OrderTakeProfit(), 0, clrRed);
+               TrailingStopTriggered = true;
+            }
+         }
       }
-      
    }
 }
 
 void openOrder(int orderType){
    RefreshRates();
    if(orderType == OP_BUY){
-      //OrderSend(Symbol(), OP_BUY, LotSize, Ask, 100, Open[1], calculatePricePoint(Bid, TakeProfit1), NULL, 0, 0, clrGreen);
+      double tp = 0;
+      if(EnableTakeProfit){
+         tp = calculatePricePoint(Bid, TakeProfit1);
+      }
+      
+      OrderSend(Symbol(), OP_BUY, LotSize, Ask, 100, 0, tp, NULL, 0, 0, clrGreen);
    }
    else if(orderType == OP_SELL){
       double tp = 0;
       if(EnableTakeProfit){
-         tp = calculatePricePoint(Bid, TakeProfit1 * -1);
+         tp = calculatePricePoint(Ask, TakeProfit1 * -1);
       }
-      OrderSend(Symbol(), OP_SELL, LotSize, Ask, 100, 0 /*Open[1]*/, tp, NULL, 0, 0, clrGreen);
+      OrderSend(Symbol(), OP_SELL, LotSize, Ask, 100, 0, tp, NULL, 0, 0, clrGreen);
    }
 }
 
@@ -260,4 +299,5 @@ bool NonLagMASellControl(double val0, double val1, double val2){
 
 void resetValues(){
    MinPrice = 2137000000;
+   TrailingStopTriggered = false;
 }

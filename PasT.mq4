@@ -12,6 +12,8 @@ extern double LotSize = 0.1;
 extern bool EnableTakeProfit = true;
 extern double TakeProfit1 = 3.6;
 extern double StopLossCoeff = 1.6;
+
+extern bool TriggerTrailingStop = false;
 extern double TrailingStopTrigger = 1;
 extern double TrailingStopPips = 100;
 
@@ -26,7 +28,7 @@ int ADXDIMinusCrossLevel = 20;
 
 int MinPrice = 2137000000;
 int MaxPrice = -2137000000;
-bool TriggerTrailingStop = false;
+
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -135,7 +137,7 @@ void traceOrder(){
       if(Bid > MaxPrice){
          MaxPrice = Bid;
          
-         if(!TriggerTrailingStop){
+         if(TriggerTrailingStop){
             double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger);
             if(MaxPrice >= trailingStopTriggerLevel)
             {
@@ -157,7 +159,7 @@ void traceOrder(){
       if(Ask < MinPrice){
          MinPrice = Ask;
          
-         if(!TriggerTrailingStop){
+         if(TriggerTrailingStop){
             double trailingStopTriggerLevel = calculatePricePoint(OrderOpenPrice(), TrailingStopTrigger * -1);
             if(MinPrice <= trailingStopTriggerLevel)
             {

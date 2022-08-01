@@ -185,6 +185,10 @@ void openOrder(int orderType){
          tp = calculatePricePoint(Bid, TakeProfit1);
       }
       
+      double adxVal_0 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MAIN, 0);
+      double adxVal_1 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MAIN, 1);
+      Print("ADX0: ", adxVal_0, "; ADX1:" + adxVal_1);
+      
       OrderSend(Symbol(), OP_BUY, LotSize, Ask, 100, 0, tp, NULL, 0, 0, clrGreen);
    }
    else if(orderType == OP_SELL){
@@ -192,6 +196,11 @@ void openOrder(int orderType){
       if(EnableTakeProfit){
          tp = calculatePricePoint(Ask, TakeProfit1 * -1);
       }
+      
+      double adxVal_0 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MAIN, 0);
+      double adxVal_1 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MAIN, 1);
+      Print("ADX0: ", adxVal_0, "; ADX1:" + adxVal_1);
+      
       OrderSend(Symbol(), OP_SELL, LotSize, Ask, 100, 0, tp, NULL, 0, 0, clrGreen);
    }
 }
@@ -202,7 +211,7 @@ double calculatePricePoint(double price, double coeff){
 
 int controlSignal(){
    int control_NonLagMA = NonLagMAControl();
-   bool control_ADX = true || ADXControl();
+   bool control_ADX = ADXControl();
    
    if(control_NonLagMA != -1 && control_ADX){
       return control_NonLagMA;
@@ -221,7 +230,7 @@ bool ADXMainAngleControl(){
    double adxVal_1 = iADX(NULL, 0, ADXPeriod, PRICE_CLOSE, MODE_MAIN, 1);
    
    // Tolerance difference may be calculated in the future.
-   if(adxVal_0 > adxVal_1 && adxVal_0 > ADXMainCrossLevel){
+   if(adxVal_0 > adxVal_1 /*&& adxVal_0 > ADXMainCrossLevel*/){
       return true;
    }
    
@@ -257,7 +266,10 @@ int NonLagMAControl()
 {
    double nlmaVal_0 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 0);
    double nlmaVal_1 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 1);
-   //double nlmaVal_2 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 2);
+   double nlmaVal_2 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 2);
+   double nlmaVal_3 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 3);
+   double nlmaVal_4 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 4);
+   double nlmaVal_5 = GetNonLagMAValue(NonLagMAPeriodMEDIUM, 5);
    
    if(nlmaVal_0 == 0 || nlmaVal_1 == 0){
       return -1;
